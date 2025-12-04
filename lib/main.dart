@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'home.dart';
+import 'signup.dart';
 
 void main() {
   runApp(const ProjetoASApp());
@@ -145,6 +147,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () {
                       debugPrint('Login: ${_emailController.text}');
                       debugPrint('Senha: ${_passwordController.text}');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const HomeScreen()),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.deepPurple,
@@ -171,7 +177,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   height: 55,
                   child: ElevatedButton(
                     onPressed: () {
-                      // IR PARA PAGINA CADASTRO
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SignupScreen()),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.deepPurple,

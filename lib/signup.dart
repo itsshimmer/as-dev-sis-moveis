@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'home.dart';
+
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
 
@@ -159,7 +161,11 @@ class _SignupScreenState extends State<SignupScreen> {
                       debugPrint('Nome: ${_nameController.text}');
                       debugPrint('Email: ${_emailController.text}');
                       debugPrint('Senha: ${_passwordController.text}');
-                      // Lógica de cadastro 
+                      // Lógica de cadastro
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const HomeScreen()),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.deepPurple,
