@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'country_model.dart';
+import '../models/country_model.dart';
 
 class ApiService {
   // URL filtrada para trazer apenas o necessário (requisito da API, ela suporta até 10 fields.)
