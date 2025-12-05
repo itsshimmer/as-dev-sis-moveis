@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../services/api_service.dart';
 import '../models/country_model.dart';
+import '../services/api_service.dart';
+import '../services/auth_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Estende o corpo atrás da AppBar para o gradiente ser contínuo
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text(
@@ -35,9 +37,30 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.exit_to_app_rounded),
-            onPressed: () {
-              // Lógica de logout, volta para a tela de login
-              Navigator.of(context).popUntil((route) => route.isFirst);
+            tooltip: 'Sair',
+            onPressed: () async {
+              // 1. Mostrar Feedback (SnackBar)
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Row(
+                    children: [
+                      Icon(Icons.waving_hand_rounded, color: Colors.white, size: 20),
+                      SizedBox(width: 10),
+                      Text('Você saiu. Até logo!'),
+                    ],
+                  ),
+                  backgroundColor: Colors.deepPurple.shade400,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  margin: const EdgeInsets.all(10),
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+
+              // 2. Realizar Logout no Firebase
+              await AuthService().signOut();
             },
           ),
         ],
@@ -72,11 +95,28 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: TextStyle(color: Colors.deepPurple.shade700, fontSize: 16),
                     ),
                     const SizedBox(height: 5),
-                    Text(
-                      '${snapshot.error}',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.deepPurple.shade400, fontSize: 12),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Text(
+                        '${snapshot.error}',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.deepPurple.shade400, fontSize: 12),
+                      ),
                     ),
+                    const SizedBox(height: 20),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          futureCountries = apiService.fetchCountries();
+                        });
+                      },
+                      icon: const Icon(Icons.refresh),
+                      label: const Text("Tentar Novamente"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.deepPurple,
+                        foregroundColor: Colors.white,
+                      ),
+                    )
                   ],
                 ),
               );
@@ -90,6 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
             }
 
             return ListView.builder(
+              // Adiciona padding no topo para a lista não começar escondida atrás da AppBar
               padding: const EdgeInsets.fromLTRB(20, 100, 20, 20),
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
@@ -114,7 +155,7 @@ class CountryCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
+        color: Colors.white.withOpacity(0.9), // Fundo branco transparente
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -129,12 +170,13 @@ class CountryCard extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
           onTap: () {
-            // Ação ao clicar no card
+            // TO-DO: Navegar para detalhes do país
           },
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
+                // Bandeira com estilo arredondado e sombra
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
@@ -164,6 +206,7 @@ class CountryCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 20),
 
+                // Informações de texto
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

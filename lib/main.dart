@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'screens/login.dart';
 import 'screens/home.dart';
-import 'screens/signup.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Inicialização do Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -29,6 +31,7 @@ class ProjetoASApp extends StatelessWidget {
           brightness: Brightness.light,
           primary: const Color(0xFF6750A4),
         ),
+        // Estilização global dos Inputs (para não repetir código em cada tela)
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: Colors.white.withOpacity(0.8),
@@ -47,172 +50,33 @@ class ProjetoASApp extends StatelessWidget {
           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         ),
       ),
-      home: const LoginScreen(),
-    );
-  }
-}
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+      // AUTH
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          // 1. Enquanto verifica se está logado, mostra loading
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator(color: Colors.deepPurple)),
+            );
+          }
 
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
+          // 2. Se tem erro na conexão com Firebase
+          if (snapshot.hasError) {
+            return const Scaffold(
+              body: Center(child: Text("Erro ao inicializar Firebase")),
+            );
+          }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  bool _obscurePassword = true;
+          // 3. Se tem dados (usuário logado), vai para Home
+          if (snapshot.hasData) {
+            return const HomeScreen();
+          }
 
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFEDE7F6),
-              Color(0xFFD1C4E9),
-            ],
-          ),
-        ),
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.deepPurple.withOpacity(0.2),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.rocket_launch_rounded,
-                    size: 50,
-                    color: Colors.deepPurple,
-                  ),
-                ),
-                const SizedBox(height: 30),
-                Text(
-                  'Projeto AS',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.deepPurple.shade800,
-                  ),
-                ),
-                const SizedBox(height: 40),
-                TextField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    labelText: 'E-mail',
-                    prefixIcon: Icon(Icons.email_outlined, color: Colors.deepPurple),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: _passwordController,
-                  obscureText: _obscurePassword,
-                  decoration: InputDecoration(
-                    labelText: 'Senha',
-                    prefixIcon: const Icon(Icons.lock_outline, color: Colors.deepPurple),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                        color: Colors.grey,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 40),
-                SizedBox(
-                  width: double.infinity,
-                  height: 55,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      debugPrint('Login: ${_emailController.text}');
-                      debugPrint('Senha: ${_passwordController.text}');
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const HomeScreen()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
-                      foregroundColor: Colors.white,
-                      elevation: 5,
-                      shadowColor: Colors.deepPurple.withOpacity(0.4),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: const Text(
-                      'ENTRAR',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  height: 55,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const SignupScreen()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
-                      foregroundColor: Colors.white,
-                      elevation: 5,
-                      shadowColor: Colors.deepPurple.withOpacity(0.4),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: const Text(
-                      'CADASTRAR',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
-        ),
+          // 4. Se não tem usuário, vai para Login
+          return const LoginScreen();
+        },
       ),
     );
   }
