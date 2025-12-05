@@ -20,3 +20,8 @@ Adicionado última build em APK release
 
 ## Aluno
 João Vianna Moog Brentano
+
+## Apresentação em vídeo
+
+https://drive.google.com/file/d/13usyIp8J0GY1DfMIlDt-go13mfVnk5qR/view?usp=sharing  
+(link com escopo de acesso para rede ulbra)
